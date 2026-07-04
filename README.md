@@ -9,7 +9,7 @@ A high-performance, single-page professional portfolio and interactive terminal 
 ## 📷 Preview
 
 <!-- Drop a crisp screenshot, mockup, or a short demo GIF right here -->
-![Portfolio Interface Preview](public/assets/MyProfile.jpg)
+![Portfolio Interface Preview](public/assets/Preview1.png)
 
 ---
 
