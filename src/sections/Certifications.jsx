@@ -9,6 +9,24 @@ const Certifications = () => {
 
   const certificationsData = [
     {
+      title: "OPSWAT Introduction to Critical Infrastructure Protection (ICIP)",
+      issuer: "OPSWAT",
+      date: "Jul 2026",
+      type: "formal",
+      link: "https://learn.opswatacademy.com/certificate/O91A-zdZtA",
+      imageSrc: "/assets/introduction_to_cip.png",
+      description: "Covers fundamental critical infrastructure protection concepts, methodologies, and cybersecurity frameworks required to secure IT and operational technology (OT) environments."
+    },
+    {
+      title: "LFC108: Cybersecurity Essentials",
+      issuer: "The Linux Foundation",
+      date: "Jul 2026",
+      type: "formal",
+      link: "https://www.credly.com/badges/ffe188c3-1818-43ee-9fcf-4604a74b72f5/public_url",
+      imageSrc: "/assets/lfc108-cybersecurity-essentials.png",
+      description: "Demonstrates understanding of security practices and precautions for online activities to minimize risks and protect personal and professional information from exposure, compromise, or data breaches."
+    },
+    {
       title: "AWS AI Practitioner Challenge",
       issuer: "Udacity",
       date: "Jun 2026",
@@ -73,12 +91,16 @@ const Certifications = () => {
 
         {/* Scrollable list container if items exceed 6 */}
         <div className={`grid grid-cols-2 gap-3 sm:gap-4 md:gap-8 ${filteredData.length > 6 ? 'max-h-[680px] overflow-y-auto pr-3' : ''}`}>
-          {filteredData.map((cert, idx) => (
-            <CertificateCard
-              key={idx}
-              {...cert}
-              onViewImage={handleViewCredential}
-            />
+          {certificationsData.map((cert) => (
+            <div
+              key={cert.title}
+              className={cert.type === filter ? 'block h-full' : 'hidden'}
+            >
+              <CertificateCard
+                {...cert}
+                onViewImage={handleViewCredential}
+              />
+            </div>
           ))}
         </div>
       </div>

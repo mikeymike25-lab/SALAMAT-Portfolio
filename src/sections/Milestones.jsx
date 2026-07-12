@@ -92,17 +92,17 @@ const MilestoneItem = ({ item, idx }) => {
 const Milestones = () => {
   const achievementsList = [
     {
-      title: "Incoming Front-End AI Engineering Intern",
+      title: "Front-End AI Engineering Intern",
       organization: "FlyRank AI",
-      date: "Incoming (June 2026)",
-      description: "Incoming intern for the FlyRank AI Internship Program. Will be designing and building high-performance frontend interfaces integrated with AI autopilot systems for organic growth workflows.",
+      date: "Jun 2026 - Present",
+      description: "Designing and building high-performance frontend interfaces integrated with AI autopilot systems for organic growth workflows under the FlyRank AI Internship Program.",
       imageSrc: "/assets/FlyRank.jpg"
     },
     {
-      title: "Incoming Auditor Officer",
+      title: "Auditor Officer",
       organization: "JISSA (Junior Information Systems Security Association)",
-      date: "Incoming (SY 2026 - 2027)",
-      description: "Incoming officer for JISSA. Will be directing financial audits, administrative compliance, and system resource tracking to maintain high structural integrity and transparency.",
+      date: "SY 2026 - 2027",
+      description: "Directing financial audits, administrative compliance, and system resource tracking to maintain high structural integrity and transparency within the organization.",
       imageSrc: "/assets/JISSA.png"
     },
     {

@@ -21,11 +21,11 @@ const CertificateCard = ({ title, issuer, date, type, link, imageSrc, descriptio
         
         {/* Certificate/Event Image Preview Thumbnail */}
         {imageSrc && !imageError && (
-          <div className="mb-3 md:mb-4 rounded-lg overflow-hidden border border-gray-800/80 relative bg-gray-900/40">
+          <div className="mb-3 md:mb-4 rounded-lg overflow-hidden border border-gray-800/80 relative bg-gray-900/40 aspect-[16/10] flex items-center justify-center p-2">
             <img 
               src={imageSrc} 
               alt={title} 
-              className="w-full h-auto opacity-90 group-hover:opacity-100 transition-opacity duration-300"
+              className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300"
               onError={() => setImageError(true)}
             />
             <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
