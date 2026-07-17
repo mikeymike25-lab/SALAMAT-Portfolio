@@ -9,6 +9,24 @@ const Certifications = () => {
 
   const certificationsData = [
     {
+      title: "Introduction to Modern AI",
+      issuer: "Cisco",
+      date: "Jul 2026",
+      type: "formal",
+      link: "https://www.credly.com/badges/3ace38a7-70c8-4c45-903a-00e20115abde",
+      imageSrc: "/assets/IntroToModernAICert.jpg",
+      description: "Covers core artificial intelligence concepts, machine learning algorithms, deep learning neural networks, and their real-world applications in solving complex modern challenges."
+    },
+    {
+      title: "Introduction to Cybersecurity",
+      issuer: "Cisco",
+      date: "Jul 2026",
+      type: "formal",
+      link: "https://www.credly.com/badges/3c5eeca2-791a-48b2-a34e-eb0196c88fb2",
+      imageSrc: "/assets/IntroToCyberSectCert.jpg",
+      description: "Demonstrates a foundational understanding of cybersecurity principles, including common network threats, vulnerabilities, data protection, and key security practices to safeguard digital environments."
+    },
+    {
       title: "OPSWAT Introduction to Critical Infrastructure Protection (ICIP)",
       issuer: "OPSWAT",
       date: "Jul 2026",
