@@ -237,6 +237,8 @@ const ScrollBackground = ({ isTerminalOpen }) => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         
+        const isMobile = canvas.width < 768;
+
         for (let i = 1; i < pathHistory.current.length; i++) {
           const p = pathHistory.current[i];
           const prev = pathHistory.current[i - 1];
@@ -246,39 +248,62 @@ const ScrollBackground = ({ isTerminalOpen }) => {
           const midX = (prev.x + p.x) / 2;
           const midY = (prev.y + p.y) / 2;
           
-          // Outer Purple/Blue Glow
-          ctx.beginPath();
-          ctx.moveTo(prev.x, prev.y);
-          ctx.quadraticCurveTo(midX, midY, p.x, p.y);
-          ctx.strokeStyle = `rgba(37, 99, 235, ${opacity * 0.4})`; // Deep blue
-          ctx.lineWidth = 18 * opacity;
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = '#2563EB';
-          ctx.stroke();
+          if (isMobile) {
+            // Ultra-lightweight rendering for mobile GPUs (no shadowBlur, fewer layers)
+            ctx.shadowBlur = 0;
+            
+            // Inner Cyan Core
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
+            ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
+            ctx.lineWidth = 6 * opacity;
+            ctx.stroke();
+            
+            // Bright White Center
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
+            ctx.lineWidth = 2 * opacity;
+            ctx.stroke();
+          } else {
+            // High-fidelity glowing ribbon for desktop
+            // Outer Purple/Blue Glow
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
+            ctx.strokeStyle = `rgba(37, 99, 235, ${opacity * 0.4})`; // Deep blue
+            ctx.lineWidth = 18 * opacity;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#2563EB';
+            ctx.stroke();
 
-          // Inner Cyan Core
-          ctx.beginPath();
-          ctx.moveTo(prev.x, prev.y);
-          ctx.quadraticCurveTo(midX, midY, p.x, p.y);
-          ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
-          ctx.lineWidth = 6 * opacity;
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = '#00F2FE';
-          ctx.stroke();
-          
-          // Bright White Center
-          ctx.beginPath();
-          ctx.moveTo(prev.x, prev.y);
-          ctx.quadraticCurveTo(midX, midY, p.x, p.y);
-          ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
-          ctx.lineWidth = 2 * opacity;
-          ctx.shadowBlur = 5;
-          ctx.shadowColor = '#FFFFFF';
-          ctx.stroke();
+            // Inner Cyan Core
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
+            ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
+            ctx.lineWidth = 6 * opacity;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#00F2FE';
+            ctx.stroke();
+            
+            // Bright White Center
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
+            ctx.lineWidth = 2 * opacity;
+            ctx.shadowBlur = 5;
+            ctx.shadowColor = '#FFFFFF';
+            ctx.stroke();
+          }
         }
       }
 
       // Update and draw dust particles
+      const isMobile = canvas.width < 768;
       for (let i = particlesRef.current.length - 1; i >= 0; i--) {
         const p = particlesRef.current[i];
         
@@ -294,8 +319,14 @@ const ScrollBackground = ({ isTerminalOpen }) => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${p.color}, ${p.life})`;
-        ctx.shadowBlur = p.size * 3;
-        ctx.shadowColor = `rgba(${p.color}, ${p.life})`;
+        
+        if (isMobile) {
+            ctx.shadowBlur = 0;
+        } else {
+            ctx.shadowBlur = p.size * 3;
+            ctx.shadowColor = `rgba(${p.color}, ${p.life})`;
+        }
+        
         ctx.fill();
       }
 
