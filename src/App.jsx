@@ -10,6 +10,7 @@ import Milestones from './sections/Milestones';
 import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 import FloatingTerminal from './components/FloatingTerminal';
+import ScrollBackground from './components/ScrollBackground';
 import { trackVisit, supabase } from './supabaseClient';
 import { askAI } from './aiService';
 
@@ -541,7 +542,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-gray-200">
+    <div className="min-h-screen bg-transparent text-gray-200 relative">
+      <ScrollBackground isTerminalOpen={isTerminalOpen} />
       <Navbar onAskSylphy={handleAskSylphyClick} />
 
       <main>

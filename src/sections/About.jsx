@@ -28,7 +28,7 @@ const About = () => {
                       <span className="text-accent font-mono font-bold text-3xl">MAS</span>
                     ) : (
                       <img
-                        src="/assets/MyProfile.jpg"
+                        src="/assets/me.jpg"
                         alt="Mike Angelo Salamat"
                         className="w-full h-full object-cover filter saturate-105 contrast-102 hover:scale-105 transition-transform duration-500"
                         onError={() => setImageError(true)}

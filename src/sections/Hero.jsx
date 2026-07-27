@@ -67,7 +67,7 @@ const Hero = ({ history, executeCommand, hideTerminal, visitorCount, promptPrefi
           <div className="relative w-52 h-52 xl:w-52 xl:h-52 2xl:w-80 2xl:h-80 3xl:w-[400px] 3xl:h-[400px] overflow-hidden rounded-xl border bg-black/40 animate-[pulse-glow_4s_ease-in-out_infinite]">
             {/* The actual profile image - bright and high contrast */}
             <img 
-              src="/assets/CopyOfMe.jpg" 
+              src="/assets/hologram.jpg" 
               alt="AI Hologram Profile" 
               className="w-full h-full object-cover filter saturate-110 contrast-105 brightness-110 animate-[float_12s_ease-in-out_infinite]" 
             />
@@ -99,7 +99,7 @@ const Hero = ({ history, executeCommand, hideTerminal, visitorCount, promptPrefi
           <div className="xl:hidden flex justify-center w-full mb-6">
             <div className="relative w-48 h-48 sm:w-60 sm:h-60 overflow-hidden rounded-xl border bg-black/40 animate-[pulse-glow_4s_ease-in-out_infinite]">
               <img 
-                src="/assets/CopyOfMe.jpg" 
+                src="/assets/hologram.jpg" 
                 alt="AI Hologram Profile" 
                 className="w-full h-full object-cover filter saturate-110 contrast-105 brightness-110 animate-[float_12s_ease-in-out_infinite]" 
               />
