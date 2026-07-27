@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Code2, Shield, Cpu } from 'lucide-react';
+import { Code2, Shield, Cpu, MousePointerClick } from 'lucide-react';
 
 // Custom inline SVG logos for tailored developer and security tools scaled to w-full h-full
 const AntigravityLogo = () => (
@@ -100,330 +100,479 @@ const ClaudeLogo = () => (
   </svg>
 );
 
-// Individual Skill Card inside the marquee
-const SkillCard = ({ skill, hoverColor }) => {
-  const CustomLogoComponent = skill.customLogo;
-  let shadowClass;
-  if (hoverColor === 'accent') {
-    shadowClass = 'hover:shadow-[0_0_20px_rgba(0,242,254,0.25)] hover:border-accent/50';
-  } else if (hoverColor === 'red') {
-    shadowClass = 'hover:shadow-[0_0_20px_rgba(239,68,68,0.25)] hover:border-red-500/50';
-  } else {
-    shadowClass = 'hover:shadow-[0_0_20px_rgba(139,92,246,0.25)] hover:border-violet-500/50';
-  }
+// Unified Skills Array
+const allSkills = [
+  // Languages & Frameworks
+  { name: "JavaScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" },
+  { name: "React", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" },
+  { name: "Node.js", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg" },
+  { name: "Python", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" },
+  { name: "Tailwind CSS", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" },
+  { name: "TypeScript", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" },
+  { name: "Java", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg" },
+  { name: "HTML5 / CSS3", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" },
+  // Cyber Security
+  { name: "Kali Linux", customLogo: KaliLogo },
+  { name: "Burp Suite", customLogo: BurpSuiteLogo },
+  { name: "Wireshark", customLogo: WiresharkLogo },
+  { name: "Nmap", customLogo: NmapLogo },
+  { name: "Nikto", customLogo: NiktoLogo },
+  { name: "SQLmap", customLogo: SQLmapLogo },
+  { name: "Tor Browser", customLogo: TorLogo },
+  { name: "Windows VM", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/windows11/windows11-original.svg" },
+  // Infrastructure & AI
+  { name: "Antigravity", customLogo: AntigravityLogo },
+  { name: "Gemini CLI", customLogo: GeminiLogo },
+  { name: "Stitch AI", customLogo: StitchLogo },
+  { name: "Supabase", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" },
+  { name: "Firebase", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/firebase/firebase-original.svg" },
+  { name: "Claude AI", customLogo: ClaudeLogo },
+  { name: "SQL Databases", customLogo: SQLLogo },
+  { name: "Vite / Git", logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" }
+];
 
-  return (
-    <div className={`w-28 h-28 flex flex-col items-center justify-center p-3 bg-surface/50 border border-gray-800 rounded-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group/item ${shadowClass}`}>
-      <div className="w-12 h-12 rounded-lg bg-black/40 flex items-center justify-center p-2 border border-gray-800/60 group-hover/item:border-gray-700 transition-colors duration-300 mb-2">
-        {skill.logo ? (
-          <img 
-            src={skill.logo} 
-            alt={skill.name} 
-            className="w-full h-full object-contain"
-          />
-        ) : (
-          <div className="w-full h-full text-gray-400 group-hover/item:text-white transition-colors duration-300 flex items-center justify-center">
-            <CustomLogoComponent />
-          </div>
-        )}
-      </div>
-      <span className="font-mono text-[10px] sm:text-xs font-semibold text-gray-400 group-hover/item:text-white text-center line-clamp-1 transition-colors duration-300">
-        {skill.name}
-      </span>
-    </div>
-  );
-};
+const IconSphere = ({ skills }) => {
+  const containerRef = useRef(null);
+  const nodesRef = useRef([]);
+  const linesRef = useRef([]);
+  const particlesRef = useRef([]);
+  const ambientParticlesRef = useRef([]);
+  const requestRef = useRef();
+  
+  const [mode, setModeState] = useState('sphere'); // 'sphere', 'explode', 'layers'
+  const modeRef = useRef(mode);
+  const setMode = (newMode) => {
+    modeRef.current = newMode;
+    setModeState(newMode);
+  };
 
-// Row Wrapper with corner brackets and IntersectionObserver animations (slide out from back of previous row)
-const SkillsRow = ({ children, shadowColor, slideDirection, zIndex }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef();
+  const isDraggingRef = useRef(false);
+  const previousMouse = useRef({ x: 0, y: 0 });
+  
+  // Camera rotation for sphere mode
+  const currentRotation = useRef({ x: 0, y: 0 });
+  const [radius, setRadius] = useState(200);
+
+  const sphereSkills = [...skills, ...skills];
+  const count = sphereSkills.length;
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.unobserve(domRef.current);
-          }
-        });
-      },
-      {
-        threshold: 0.05,
-        rootMargin: "0px 0px -20px 0px"
-      }
-    );
-
-    const currentRef = domRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
+    const handleResize = () => {
+      if (window.innerWidth < 480) {
+        setRadius(140);
+      } else if (window.innerWidth < 768) {
+        setRadius(170);
+      } else {
+        setRadius(200);
       }
     };
+    handleResize(); 
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  let slideClass;
-  if (slideDirection === 'first') {
-    // Row 1 slides up and stretches slightly
-    slideClass = isVisible 
-      ? 'opacity-100 translate-y-0 scale-100' 
-      : 'opacity-0 translate-y-12 scale-[0.98]';
-  } else {
-    // Row 2 and 3 slide down out from behind the preceding row
-    slideClass = isVisible 
-      ? 'opacity-100 translate-y-0 scale-100' 
-      : 'opacity-0 -translate-y-24 scale-[0.98]';
-  }
+  // Compute targets
+  const { itemsData, linesData, particlesData, ambientParticlesData } = React.useMemo(() => {
+    // 1. Sphere targets
+    const sphere = sphereSkills.map((skill, i) => {
+      const phi = Math.acos(-1 + (2 * i) / count);
+      const theta = Math.sqrt(count * Math.PI) * phi;
+      return {
+        x: radius * Math.cos(theta) * Math.sin(phi),
+        y: radius * Math.sin(theta) * Math.sin(phi),
+        z: radius * Math.cos(phi),
+      };
+    });
 
-  let borderHoverClass;
-  let bracketClass;
-  if (shadowColor === 'accent') {
-    borderHoverClass = 'hover:border-accent/40 hover:shadow-[0_0_35px_rgba(0,242,254,0.08)]';
-    bracketClass = 'border-accent/30 group-hover:border-accent/80';
-  } else if (shadowColor === 'red') {
-    borderHoverClass = 'hover:border-red-500/40 hover:shadow-[0_0_35px_rgba(239,68,68,0.08)]';
-    bracketClass = 'border-red-500/30 group-hover:border-red-500/80';
-  } else {
-    borderHoverClass = 'hover:border-violet-500/40 hover:shadow-[0_0_35px_rgba(139,92,246,0.08)]';
-    bracketClass = 'border-violet-500/30 group-hover:border-violet-500/80';
-  }
+    // 2. Explode targets
+    const explode = sphere.map((pos) => {
+      // Uniform expansion for a cleaner, "shockwave" style explosion
+      const mult = 5.0; 
+      return {
+        x: pos.x * mult,
+        y: pos.y * mult,
+        z: pos.z * mult,
+      };
+    });
+
+    // 3. Layers targets
+    const layers = [];
+    const layersCount = 3;
+    const itemsPerLayer = Math.ceil(count / layersCount);
+    
+    for (let l = 0; l < layersCount; l++) {
+      const zPlane = (l - 1) * 200; // -200, 0, 200
+      const layerItemsCount = Math.min(itemsPerLayer, count - l * itemsPerLayer);
+      
+      const cols = Math.ceil(Math.sqrt(layerItemsCount));
+      const rows = Math.ceil(layerItemsCount / cols);
+      
+      const spacingX = radius * 2.5 / cols;
+      const spacingY = radius * 2.5 / rows;
+      
+      for (let i = 0; i < layerItemsCount; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        layers.push({
+          x: (col - (cols - 1) / 2) * spacingX,
+          y: (row - (rows - 1) / 2) * spacingY,
+          z: zPlane,
+        });
+      }
+    }
+
+    const items = sphereSkills.map((skill, i) => ({
+      ...skill,
+      id: i,
+      current: { x: sphere[i].x, y: sphere[i].y, z: sphere[i].z }, // initial positions
+      targets: {
+        sphere: sphere[i],
+        explode: explode[i],
+        layers: layers[i],
+      }
+    }));
+
+    // Setup lines based on sphere initial closest pairs
+    const computedLines = [];
+    for (let i = 0; i < items.length; i++) {
+      const distances = items.map((item, j) => ({
+        j,
+        d: Math.hypot(item.targets.sphere.x - items[i].targets.sphere.x, 
+                      item.targets.sphere.y - items[i].targets.sphere.y, 
+                      item.targets.sphere.z - items[i].targets.sphere.z)
+      }));
+      distances.sort((a, b) => a.d - b.d);
+      for (let k = 1; k <= 3; k++) {
+        const j = distances[k].j;
+        if (i < j) {
+          computedLines.push({ i, j });
+        }
+      }
+    }
+
+    // Generate Ambient Floating Particles
+    const ambientParticles = Array.from({ length: 40 }).map((_, i) => ({
+      id: i,
+      baseX: (Math.random() - 0.5) * 800,
+      baseY: (Math.random() - 0.5) * 800,
+      baseZ: (Math.random() - 0.5) * 800,
+      phaseX: Math.random() * Math.PI * 2,
+      phaseY: Math.random() * Math.PI * 2,
+      phaseZ: Math.random() * Math.PI * 2,
+      speed: 0.001 + Math.random() * 0.002
+    }));
+
+    // Generate Particles
+    const particles = Array.from({ length: 60 }).map((_, i) => {
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(Math.random() * 2 - 1);
+      const speed = 10 + Math.random() * 25;
+      return {
+        id: i,
+        current: { x: 0, y: 0, z: 0 },
+        velocity: { 
+          x: Math.cos(theta) * Math.sin(phi) * speed, 
+          y: Math.sin(theta) * Math.sin(phi) * speed, 
+          z: Math.cos(phi) * speed 
+        },
+        life: 0,
+        active: false
+      };
+    });
+
+    return { itemsData: items, linesData: computedLines, particlesData: particles, ambientParticlesData: ambientParticles };
+  }, [sphereSkills, radius, count]);
+
+  // Animation Loop
+  const dataRef = useRef(itemsData);
+  useEffect(() => {
+    dataRef.current = itemsData;
+  }, [itemsData]);
+
+  useEffect(() => {
+    const animate = () => {
+      const items = dataRef.current;
+      const currentMode = modeRef.current;
+
+      // 1. Camera Rotation
+      if (currentMode === 'sphere') {
+        if (!isDraggingRef.current) {
+          currentRotation.current.x -= 0.002;
+          currentRotation.current.y += 0.004;
+        }
+      } else if (currentMode === 'layers') {
+        // Snappy rotation reset for layers
+        currentRotation.current.x += (0 - currentRotation.current.x) * 0.15;
+        currentRotation.current.y += (0 - currentRotation.current.y) * 0.15;
+      }
+      
+      const rotX = currentRotation.current.x;
+      const rotY = currentRotation.current.y;
+
+      // 2. Interpolate node positions
+      // Balanced speed: not too slow, not too snappy
+      const lerpFactor = currentMode === 'explode' ? 0.15 : 0.1;
+      
+      for (let i = 0; i < items.length; i++) {
+        const node = items[i];
+        const target = node.targets[currentMode];
+        
+        node.current.x += (target.x - node.current.x) * lerpFactor;
+        node.current.y += (target.y - node.current.y) * lerpFactor;
+        node.current.z += (target.z - node.current.z) * lerpFactor;
+
+        if (nodesRef.current[i]) {
+          nodesRef.current[i].style.transform = `translate3d(${node.current.x}px, ${node.current.y}px, ${node.current.z}px) rotateY(${-rotY}rad) rotateX(${-rotX}rad)`;
+        }
+      }
+
+      // 3. Update lines
+      for (let k = 0; k < linesData.length; k++) {
+        const { i, j } = linesData[k];
+        const p1 = items[i].current;
+        const p2 = items[j].current;
+        
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        const dz = p1.z - p2.z;
+        const dist = Math.hypot(dx, dy, dz);
+        
+        const cx = (p1.x + p2.x) / 2;
+        const cy = (p1.y + p2.y) / 2;
+        const cz = (p1.z + p2.z) / 2;
+        
+        const rotZ = Math.asin(dy / (dist || 1));
+        const rotYLine = Math.atan2(-dz, dx);
+
+        if (linesRef.current[k]) {
+          linesRef.current[k].style.width = `${dist}px`;
+          linesRef.current[k].style.transform = `translate(-50%, -50%) translate3d(${cx}px, ${cy}px, ${cz}px) rotateY(${rotYLine}rad) rotateZ(${rotZ}rad)`;
+          linesRef.current[k].style.opacity = currentMode === 'sphere' ? '1' : '0';
+        }
+      }
+
+      // 4. Update particles (independent of mode so they don't vanish)
+      for (let i = 0; i < particlesData.length; i++) {
+        const p = particlesData[i];
+        
+        // Trigger particles when explode starts
+        if (currentMode === 'explode' && !p.active) {
+          p.active = true;
+          p.current = { x: 0, y: 0, z: 0 };
+          p.life = 1.0;
+        }
+
+        if (p.life > 0) {
+          p.current.x += p.velocity.x;
+          p.current.y += p.velocity.y;
+          p.current.z += p.velocity.z;
+          p.life -= 0.015; // Slower fade out
+          
+          if (particlesRef.current[i]) {
+            particlesRef.current[i].style.opacity = Math.max(0, p.life);
+            particlesRef.current[i].style.transform = `translate3d(${p.current.x}px, ${p.current.y}px, ${p.current.z}px) rotateY(${-rotY}rad) rotateX(${-rotX}rad)`;
+          }
+        } else {
+          p.active = false; // Reset so they can trigger again next time
+          if (particlesRef.current[i]) {
+            particlesRef.current[i].style.opacity = '0';
+          }
+        }
+      }
+
+      // 5. Update ambient floating particles
+      const time = Date.now();
+      for (let i = 0; i < ambientParticlesData.length; i++) {
+        const p = ambientParticlesData[i];
+        const px = p.baseX + Math.sin(time * p.speed + p.phaseX) * 50;
+        const py = p.baseY + Math.cos(time * p.speed + p.phaseY) * 50;
+        const pz = p.baseZ + Math.sin(time * p.speed + p.phaseZ) * 50;
+        
+        if (ambientParticlesRef.current[i]) {
+          ambientParticlesRef.current[i].style.transform = `translate3d(${px}px, ${py}px, ${pz}px) rotateY(${-rotY}rad) rotateX(${-rotX}rad)`;
+          const targetOpacity = currentMode === 'layers' ? 0.6 : 0;
+          const currentOpacity = parseFloat(ambientParticlesRef.current[i].style.opacity || 0);
+          ambientParticlesRef.current[i].style.opacity = currentOpacity + (targetOpacity - currentOpacity) * 0.05;
+        }
+      }
+
+      // 6. Update container perspective rotation
+      if (containerRef.current) {
+         containerRef.current.style.transform = `translateZ(-${radius}px) rotateX(${rotX}rad) rotateY(${rotY}rad)`;
+      }
+
+      requestRef.current = requestAnimationFrame(animate);
+    };
+
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [linesData, radius]);
+
+  // Handlers
+  const toggleMode = () => {
+    if (modeRef.current === 'sphere') {
+      setMode('explode');
+      
+      // Balanced transition timing to allow the explosion to be visible
+      setTimeout(() => {
+        if (modeRef.current === 'explode') {
+          setMode('layers');
+        }
+      }, 450);
+    } else {
+      setMode('sphere');
+    }
+  };
+
+  const handlePointerDown = (e) => {
+    if (modeRef.current === 'sphere') {
+      isDraggingRef.current = true;
+      previousMouse.current = { x: e.clientX || e.touches?.[0]?.clientX, y: e.clientY || e.touches?.[0]?.clientY };
+    }
+  };
+
+  const handlePointerUp = () => {
+    isDraggingRef.current = false;
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDraggingRef.current) return;
+    
+    const clientX = e.clientX || e.touches?.[0]?.clientX;
+    const clientY = e.clientY || e.touches?.[0]?.clientY;
+    
+    const deltaX = clientX - previousMouse.current.x;
+    const deltaY = clientY - previousMouse.current.y;
+    
+    currentRotation.current.y += deltaX * 0.005;
+    currentRotation.current.x -= deltaY * 0.005;
+    
+    previousMouse.current = { x: clientX, y: clientY };
+  };
 
   return (
-    <div 
-      ref={domRef}
-      style={{ zIndex }}
-      className={`bg-surface/30 backdrop-blur-md border border-gray-800 rounded-2xl p-5 sm:p-6 md:p-8 transition-slide-out transform ${slideClass} ${borderHoverClass} relative group overflow-hidden`}
-    >
-      {/* Design Corner Brackets */}
-      <div className={`absolute top-4 left-4 w-4 h-4 border-t-2 border-l-2 ${bracketClass} transition-colors duration-500`}></div>
-      <div className={`absolute top-4 right-4 w-4 h-4 border-t-2 border-r-2 ${bracketClass} transition-colors duration-500`}></div>
-      <div className={`absolute bottom-4 left-4 w-4 h-4 border-b-2 border-l-2 ${bracketClass} transition-colors duration-500`}></div>
-      <div className={`absolute bottom-4 right-4 w-4 h-4 border-b-2 border-r-2 ${bracketClass} transition-colors duration-500`}></div>
+    <div className="flex flex-col items-center justify-center w-full relative">
+      <div 
+        className={`relative w-full h-[500px] flex items-center justify-center overflow-visible select-none ${mode === 'sphere' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+        onMouseDown={handlePointerDown}
+        onMouseUp={handlePointerUp}
+        onMouseLeave={handlePointerUp}
+        onMouseMove={handlePointerMove}
+        onTouchStart={handlePointerDown}
+        onTouchEnd={handlePointerUp}
+        onTouchCancel={handlePointerUp}
+        onTouchMove={handlePointerMove}
+        onClick={toggleMode}
+        style={{ perspective: '1200px' }}
+      >
+        <div 
+          ref={containerRef}
+          className="relative w-full h-full flex items-center justify-center pointer-events-none will-change-transform"
+          style={{ transformStyle: 'preserve-3d' }}
+        >
+          {/* Draw network lines between nodes */}
+          {linesData.map((_, idx) => (
+            <div 
+              key={`line-${idx}`} 
+              ref={(el) => (linesRef.current[idx] = el)}
+              className="absolute left-1/2 top-1/2 bg-accent/40 transition-opacity duration-300 will-change-transform"
+              style={{
+                height: '1px',
+                transformOrigin: 'center center',
+              }}
+            />
+          ))}
 
-      {children}
+          {/* Draw explosion particles */}
+          {particlesData.map((_, idx) => (
+            <div 
+              key={`particle-${idx}`} 
+              ref={(el) => (particlesRef.current[idx] = el)}
+              className="absolute left-1/2 top-1/2 w-1.5 h-1.5 bg-accent rounded-full will-change-transform pointer-events-none opacity-0 shadow-[0_0_10px_#00F2FE]"
+              style={{ transformStyle: 'preserve-3d' }}
+            />
+          ))}
+
+          {/* Draw ambient floating particles */}
+          {ambientParticlesData.map((_, idx) => (
+            <div 
+              key={`ambient-${idx}`} 
+              ref={(el) => (ambientParticlesRef.current[idx] = el)}
+              className="absolute left-1/2 top-1/2 w-1.5 h-1.5 bg-accent rounded-full will-change-transform pointer-events-none opacity-0 shadow-[0_0_10px_#00F2FE]"
+              style={{ transformStyle: 'preserve-3d' }}
+            />
+          ))}
+
+          {/* Draw skill icons */}
+          {itemsData.map((item, idx) => {
+            const CustomLogo = item.customLogo;
+            return (
+              <div
+                key={`node-${idx}`}
+                ref={(el) => (nodesRef.current[idx] = el)}
+                className="absolute group pointer-events-auto hover:z-50 will-change-transform"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                {/* Icon Container */}
+                <div 
+                  className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-gray-900/90 rounded-xl border border-gray-700/60 p-2 md:p-2.5 transition-all duration-300 group-hover:scale-125 group-hover:border-accent shadow-xl"
+                  style={{ backfaceVisibility: 'hidden' }}
+                >
+                  {item.logo ? (
+                    <img src={item.logo} alt={item.name} className="w-full h-full object-contain pointer-events-none" draggable="false" />
+                  ) : (
+                    <div className="w-full h-full text-white pointer-events-none">
+                      <CustomLogo />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Tooltip */}
+                <div className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none -top-10 md:-top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/95 text-accent text-xs md:text-sm font-mono font-bold py-1 px-2 md:py-1.5 md:px-3 rounded-lg border border-accent/50 z-50">
+                  {item.name}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      
+      {/* Instructions */}
+      <div 
+        className="mt-4 px-4 py-2 bg-gray-900/60 backdrop-blur border border-gray-700 rounded-full flex items-center gap-2 cursor-pointer hover:bg-gray-800 transition-colors z-10" 
+        onClick={toggleMode}
+      >
+        <MousePointerClick className="w-4 h-4 text-accent" />
+        <span className="text-gray-300 text-xs font-medium tracking-wide">
+          {mode === 'sphere' ? 'Click to explode & align' : 'Click to reform sphere'}
+        </span>
+      </div>
     </div>
   );
 };
 
 const Skills = () => {
-  const languagesSkills = [
-    {
-      name: "JavaScript",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"
-    },
-    {
-      name: "React",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"
-    },
-    {
-      name: "Node.js",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nodejs/nodejs-original.svg"
-    },
-    {
-      name: "Python",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"
-    },
-    {
-      name: "Tailwind CSS",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg"
-    },
-    {
-      name: "TypeScript",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"
-    },
-    {
-      name: "Java",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg"
-    },
-    {
-      name: "HTML5 / CSS3",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"
-    }
-  ];
-
-  const cyberSkills = [
-    { 
-      name: "Kali Linux", 
-      customLogo: KaliLogo 
-    },
-    { 
-      name: "Burp Suite", 
-      customLogo: BurpSuiteLogo 
-    },
-    { 
-      name: "Wireshark", 
-      customLogo: WiresharkLogo 
-    },
-    { 
-      name: "Nmap", 
-      customLogo: NmapLogo 
-    },
-    { 
-      name: "Nikto", 
-      customLogo: NiktoLogo 
-    },
-    { 
-      name: "SQLmap", 
-      customLogo: SQLmapLogo 
-    },
-    {
-      name: "Tor Browser",
-      customLogo: TorLogo
-    },
-    { 
-      name: "Windows VM", 
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/windows11/windows11-original.svg" 
-    }
-  ];
-
-  const infrastructureSkills = [
-    { 
-      name: "Antigravity", 
-      customLogo: AntigravityLogo 
-    },
-    { 
-      name: "Gemini CLI", 
-      customLogo: GeminiLogo 
-    },
-    { 
-      name: "Stitch AI", 
-      customLogo: StitchLogo 
-    },
-    { 
-      name: "Supabase", 
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/supabase/supabase-original.svg" 
-    },
-    { 
-      name: "Firebase", 
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/firebase/firebase-original.svg" 
-    },
-    {
-      name: "Claude AI",
-      customLogo: ClaudeLogo
-    },
-    { 
-      name: "SQL Databases", 
-      customLogo: SQLLogo 
-    },
-    {
-      name: "Vite / Git",
-      logo: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"
-    }
-  ];
-
-  // Helper component to render the infinite scrolling list
-  const SkillMarquee = ({ skills, direction, hoverColor }) => {
-    // Duplicate lists to ensure seamless looping on all screens
-    const doubledSkills = [...skills, ...skills];
-    const animationClass = direction === 'left' ? 'animate-marquee-left' : 'animate-marquee-right';
-
-    return (
-      <div className="relative w-full overflow-hidden py-4 mask-fade-edges">
-        <div className={`${animationClass} flex gap-6 hover:[animation-play-state:paused]`}>
-          {doubledSkills.map((skill, idx) => (
-            <SkillCard key={`${skill.name}-${idx}`} skill={skill} hoverColor={hoverColor} />
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <section id="skills" className="py-24 relative overflow-hidden">
-      {/* CSS Styles injected inline for self-contained custom marquee animations */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes marquee-left {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        @keyframes marquee-right {
-          0% { transform: translateX(-50%); }
-          100% { transform: translateX(0); }
-        }
-        .animate-marquee-left {
-          animation: marquee-left 25s linear infinite;
-        }
-        .animate-marquee-right {
-          animation: marquee-right 25s linear infinite;
-        }
-        .mask-fade-edges {
-          mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-          -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-        }
-        .transition-slide-out {
-          transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.2s ease-out, border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-      `}} />
-
+    <section id="skills" className="py-24 relative overflow-hidden bg-background">
       {/* Visual background accents */}
-      <div className="absolute top-1/3 left-10 w-72 h-72 bg-accent/5 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/3 right-10 w-72 h-72 bg-red-500/5 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-500/5 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-10 w-96 h-96 bg-accent/5 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-red-500/5 rounded-full blur-[150px] pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/5 rounded-full blur-[180px] pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
         <h2 className="text-3xl md:text-4xl font-bold mb-16 flex items-center gap-4">
           <span className="text-accent font-mono text-2xl">02.</span> Technical Matrix
           <div className="h-px bg-gray-800 flex-grow ml-4 max-w-xs"></div>
         </h2>
 
-        <div className="flex flex-col gap-10">
-          
-          {/* Row 1: Languages & Frameworks (Moving Right) - z-30 (Top layer) */}
-          <SkillsRow shadowColor="accent" slideDirection="first" zIndex={30}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-accent/10 rounded-xl border border-accent/20">
-                  <Code2 className="text-accent" size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white tracking-wide">Languages & Frameworks</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">Core coding & interface tools</p>
-                </div>
-              </div>
-            </div>
-            
-            <SkillMarquee skills={languagesSkills} direction="right" hoverColor="accent" />
-          </SkillsRow>
-
-          {/* Row 2: Security & Audits (Moving Left) - z-20 (Slides out from behind Row 1) */}
-          <SkillsRow shadowColor="red" slideDirection="subsequent" zIndex={20}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-red-500/10 rounded-xl border border-red-500/20">
-                  <Shield className="text-[#FF4A4A]" size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white tracking-wide">Security & Audits</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">OS environments, sniffers & fuzzers</p>
-                </div>
-              </div>
-            </div>
-
-            <SkillMarquee skills={cyberSkills} direction="left" hoverColor="red" />
-          </SkillsRow>
-
-          {/* Row 3: AI & Platforms (Moving Right) - z-10 (Slides out from behind Row 2) */}
-          <SkillsRow shadowColor="violet" slideDirection="subsequent" zIndex={10}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-violet-500/10 rounded-xl border border-violet-500/20">
-                  <Cpu className="text-[#A78BFA]" size={28} />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white tracking-wide">AI & Platforms</h3>
-                  <p className="text-xs text-gray-500 font-mono mt-0.5">Database services, host clouds & AI</p>
-                </div>
-              </div>
-            </div>
-
-            <SkillMarquee skills={infrastructureSkills} direction="right" hoverColor="violet" />
-          </SkillsRow>
-
+        {/* 3D Sphere Container */}
+        <div className="w-full max-w-3xl mx-auto aspect-square md:aspect-video rounded-3xl bg-surface/20 border border-gray-800/80 p-4 md:p-8 backdrop-blur-md relative shadow-2xl">
+           <div className="absolute top-4 left-6 text-gray-500 font-mono text-xs flex items-center gap-2">
+             <div className="w-2 h-2 rounded-full bg-accent animate-pulse"></div>
+             Interactive Global Grid
+           </div>
+           
+           <IconSphere skills={allSkills} />
         </div>
       </div>
     </section>
@@ -431,3 +580,4 @@ const Skills = () => {
 };
 
 export default Skills;
+

@@ -144,7 +144,7 @@ const Hero = ({ history, executeCommand, hideTerminal, visitorCount, promptPrefi
             Mike Angelo Salamat
             <a 
               href="#about" 
-              className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-blue-500 text-lg sm:text-xl md:text-3xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl block mt-3 font-mono hover:opacity-80 transition-opacity duration-300 w-fit"
+              className="text-accent text-lg sm:text-xl md:text-3xl xl:text-2xl 2xl:text-3xl 3xl:text-4xl block mt-3 font-mono hover:text-blue-400 transition-colors duration-300 w-fit"
             >
               Full-Stack Developer & Cybersecurity Enthusiast
             </a>
@@ -167,7 +167,7 @@ const Hero = ({ history, executeCommand, hideTerminal, visitorCount, promptPrefi
         {/* Right Column: Terminal Console */}
         <div 
           id="hero-terminal" 
-          className={`relative z-10 w-full max-w-md xl:max-w-[350px] 2xl:max-w-[450px] 3xl:max-w-lg mx-auto lg:ml-auto transition-all duration-500 ease-in-out order-3 lg:order-none ${
+          className={`hidden md:block relative z-10 w-full max-w-md xl:max-w-[350px] 2xl:max-w-[450px] 3xl:max-w-lg mx-auto lg:ml-auto transition-all duration-500 ease-in-out order-3 lg:order-none ${
             hideTerminal ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
           }`}
         >

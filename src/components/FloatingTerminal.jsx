@@ -19,7 +19,7 @@ const FloatingTerminal = ({ history, executeCommand, showIcon, isOpen, setIsOpen
   useEffect(() => {
     const calculateOffset = () => {
       const heroTerminal = document.getElementById('hero-terminal');
-      if (heroTerminal) {
+      if (heroTerminal && heroTerminal.offsetParent !== null) {
         const rect = heroTerminal.getBoundingClientRect();
         
         // Window measurements
@@ -57,6 +57,9 @@ const FloatingTerminal = ({ history, executeCommand, showIcon, isOpen, setIsOpen
         const scale = rect.width / activeWidth;
         
         setClosedTransform({ x: dx, y: dy, scale: scale });
+      } else {
+        // If hero terminal is hidden (mobile), just scale down to the floating button's position
+        setClosedTransform({ x: 0, y: 0, scale: 0 });
       }
     };
 
