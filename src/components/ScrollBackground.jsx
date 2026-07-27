@@ -199,34 +199,26 @@ const ScrollBackground = ({ isTerminalOpen }) => {
 
       // Record path history for the glowing ribbon
       if (!isTerminalOpenRef.current && lastRobotPos.current.x !== 0 && speed > 0.5) {
-         // Calculate the perpendicular vector of the movement for curvy drift
-         const perpX = -dy / speed;
-         const perpY = dx / speed;
-         pathHistory.current.push({ x: robotX, y: robotY, perpX, perpY, speed, life: 1 });
+         pathHistory.current.push({ x: robotX, y: robotY, life: 1 });
       }
 
-      // Update and filter path history (Creates the curvy drift)
+      // Update and filter path history
       for (let i = 0; i < pathHistory.current.length; i++) {
-         const p = pathHistory.current[i];
-         p.life -= 0.02; // Fades out over 50 frames
-         
-         // Constant outward drift
-         const driftAmount = p.speed * 0.03; 
-         p.x += p.perpX * driftAmount;
-         p.y += p.perpY * driftAmount;
+         pathHistory.current[i].life -= 0.02; // Fades out smoothly over 50 frames
       }
       pathHistory.current = pathHistory.current.filter(p => p.life > 0);
 
       // Only spawn dust particles if moving
       if (!isTerminalOpenRef.current && lastRobotPos.current.x !== 0 && speed > 0.5) {
-         const spawnCount = Math.max(1, Math.min(10, Math.floor(speed / 3))); // slightly fewer particles now that we have a ribbon
+         const spawnCount = Math.max(1, Math.min(8, Math.floor(speed / 4))); // fewer particles
          
          for (let j = 0; j < spawnCount; j++) {
             const spawnX = lastRobotPos.current.x + dx * (j / spawnCount);
             const spawnY = lastRobotPos.current.y + dy * (j / spawnCount);
             
-            const vx = (Math.random() - 0.5) * 4 - (dx * 0.02);
-            const vy = (Math.random() - 0.5) * 4 - (dy * 0.02);
+            // Very gentle scatter, mostly just inheriting backward inertia
+            const vx = (Math.random() - 0.5) * 1.5 - (dx * 0.03);
+            const vy = (Math.random() - 0.5) * 1.5 - (dy * 0.03);
             
             particlesRef.current.push({
                x: spawnX, y: spawnY, vx, vy,
@@ -245,30 +237,12 @@ const ScrollBackground = ({ isTerminalOpen }) => {
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
         
-        // Pre-calculate snaking coordinates to ensure all 3 ribbon layers align perfectly
-        const timeOffset = Date.now() / 150;
-        const snakePoints = pathHistory.current.map(p => {
-           // Snake wave effect: 
-           // 1. Starts at 0 amplitude at the robot (1 - p.life = 0)
-           // 2. Grows in amplitude towards the tail
-           // 3. Animates over time
-           const waveAmplitude = 25 * (1 - p.life);
-           const wavePhase = (1 - p.life) * 12 - timeOffset;
-           const waveOffset = Math.sin(wavePhase) * waveAmplitude;
-           
-           return {
-              x: p.x + p.perpX * waveOffset,
-              y: p.y + p.perpY * waveOffset,
-              life: p.life
-           };
-        });
-
-        for (let i = 1; i < snakePoints.length; i++) {
-          const p = snakePoints[i];
-          const prev = snakePoints[i - 1];
+        for (let i = 1; i < pathHistory.current.length; i++) {
+          const p = pathHistory.current[i];
+          const prev = pathHistory.current[i - 1];
           const opacity = Math.max(0, p.life);
           
-          // Use quadratic curves for an ultra-smooth ribbon
+          // Use quadratic curves for an ultra-smooth, continuous ribbon
           const midX = (prev.x + p.x) / 2;
           const midY = (prev.y + p.y) / 2;
           
@@ -277,7 +251,7 @@ const ScrollBackground = ({ isTerminalOpen }) => {
           ctx.moveTo(prev.x, prev.y);
           ctx.quadraticCurveTo(midX, midY, p.x, p.y);
           ctx.strokeStyle = `rgba(37, 99, 235, ${opacity * 0.4})`; // Deep blue
-          ctx.lineWidth = 16 * opacity;
+          ctx.lineWidth = 18 * opacity;
           ctx.shadowBlur = 15;
           ctx.shadowColor = '#2563EB';
           ctx.stroke();
@@ -287,8 +261,8 @@ const ScrollBackground = ({ isTerminalOpen }) => {
           ctx.moveTo(prev.x, prev.y);
           ctx.quadraticCurveTo(midX, midY, p.x, p.y);
           ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
-          ctx.lineWidth = 5 * opacity;
-          ctx.shadowBlur = 8;
+          ctx.lineWidth = 6 * opacity;
+          ctx.shadowBlur = 10;
           ctx.shadowColor = '#00F2FE';
           ctx.stroke();
           
@@ -297,8 +271,8 @@ const ScrollBackground = ({ isTerminalOpen }) => {
           ctx.moveTo(prev.x, prev.y);
           ctx.quadraticCurveTo(midX, midY, p.x, p.y);
           ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
-          ctx.lineWidth = 1.5 * opacity;
-          ctx.shadowBlur = 4;
+          ctx.lineWidth = 2 * opacity;
+          ctx.shadowBlur = 5;
           ctx.shadowColor = '#FFFFFF';
           ctx.stroke();
         }
