@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const MilestoneImage = ({ src, alt }) => {
   const [error, setError] = useState(false);
@@ -26,36 +27,7 @@ const MilestoneImage = ({ src, alt }) => {
 };
 
 const MilestoneItem = ({ item, idx }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef();
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.unobserve(domRef.current);
-          }
-        });
-      },
-      {
-        threshold: 0.15,
-        rootMargin: "0px 0px -60px 0px"
-      }
-    );
-
-    const currentRef = domRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, []);
+  const [domRef, isVisible] = useScrollReveal({ threshold: 0.1 });
 
   return (
     <div className={`relative flex flex-col md:flex-row items-center justify-between group ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
