@@ -11,6 +11,8 @@ const ProjectCard = ({ title, description, tags, repoLink, demoLink, downloadLin
           <img 
             src={imageSrc} 
             alt={title} 
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={() => setImageError(true)}
           />

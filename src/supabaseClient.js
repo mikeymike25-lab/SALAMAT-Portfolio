@@ -90,13 +90,16 @@ async function getDeviceDetails() {
 
   if (navigator.userAgentData) {
     try {
-      const uaData = await navigator.userAgentData.getHighEntropyValues(['model']);
-      if (uaData.model && uaData.model.trim() !== '') {
+      const uaData = await Promise.race([
+        navigator.userAgentData.getHighEntropyValues(['model']),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 200))
+      ]);
+      if (uaData && uaData.model && uaData.model.trim() !== '') {
         deviceModel = uaData.model.trim();
         modelFound = true;
       }
     } catch (err) {
-      console.warn('Client Hints model fetch failed, using fallback:', err);
+      // Client Hints model fetch timed out or failed, using fallback regex
     }
   }
 

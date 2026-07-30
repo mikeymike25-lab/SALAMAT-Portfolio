@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import CertificateCard from '../components/CertificateCard';
 import ImageModal from '../components/ImageModal';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const Certifications = () => {
+  const [sectionRef, isVisible] = useScrollReveal({ threshold: 0.1 });
   const [activeCert, setActiveCert] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filter, setFilter] = useState('formal'); // 'formal' | 'event'
@@ -80,9 +82,9 @@ const Certifications = () => {
   const filteredData = certificationsData.filter(item => item.type === filter);
 
   return (
-    <section id="certifications" className="py-24">
+    <section id="certifications" ref={sectionRef} className="py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="mb-12 border-b border-gray-800/50 pb-6 space-y-6">
+        <div className={`mb-12 border-b border-gray-800/50 pb-6 space-y-6 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <h2 className="text-3xl md:text-4xl font-bold flex items-center gap-4">
             <span className="text-accent font-mono text-2xl">04.</span> Certifications & Events
             <div className="h-px bg-gray-800 w-32 hidden md:block"></div>
@@ -109,17 +111,24 @@ const Certifications = () => {
 
         {/* Scrollable list container if items exceed 6 */}
         <div className={`grid grid-cols-2 gap-3 sm:gap-4 md:gap-8 ${filteredData.length > 6 ? 'max-h-[680px] overflow-y-auto pr-3' : ''}`}>
-          {certificationsData.map((cert) => (
-            <div
-              key={cert.title}
-              className={cert.type === filter ? 'block h-full' : 'hidden'}
-            >
-              <CertificateCard
-                {...cert}
-                onViewImage={handleViewCredential}
-              />
-            </div>
-          ))}
+          {certificationsData.map((cert, index) => {
+            const isMatch = cert.type === filter;
+            // Calculate relative index among filtered items for stagger
+            const filterIndex = filteredData.findIndex(item => item.title === cert.title);
+
+            return (
+              <div
+                key={cert.title}
+                className={`transition-all duration-700 ease-out ${isMatch ? 'block h-full' : 'hidden'} ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+                style={{ transitionDelay: isMatch ? `${(filterIndex >= 0 ? filterIndex : 0) * 120}ms` : '0ms' }}
+              >
+                <CertificateCard
+                  {...cert}
+                  onViewImage={handleViewCredential}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 

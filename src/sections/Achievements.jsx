@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trophy, ShieldAlert, Users } from 'lucide-react';
 import ImageModal from '../components/ImageModal';
+import { useScrollReveal } from '../hooks/useScrollReveal';
 
 const AchievementCard = ({ title, subtitle, icon: Icon, description, imageSrc, detailImageSrc, date, issuer, onViewImage }) => {
   const [imageError, setImageError] = useState(false);
@@ -14,6 +15,8 @@ const AchievementCard = ({ title, subtitle, icon: Icon, description, imageSrc, d
             <img 
               src={imageSrc} 
               alt={title} 
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
               onError={() => setImageError(true)}
             />
@@ -63,6 +66,7 @@ const AchievementCard = ({ title, subtitle, icon: Icon, description, imageSrc, d
 };
 
 const Achievements = () => {
+  const [sectionRef, isVisible] = useScrollReveal({ threshold: 0.1 });
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -114,16 +118,22 @@ const Achievements = () => {
   ];
 
   return (
-    <section id="achievements" className="py-24">
+    <section id="achievements" ref={sectionRef} className="py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold mb-12 flex items-center gap-4">
+        <h2 className={`text-3xl md:text-4xl font-bold mb-12 flex items-center gap-4 transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
           <span className="text-accent font-mono text-2xl">06.</span> Highlighted Achievements
           <div className="h-px bg-gray-800 flex-grow ml-4 max-w-xs"></div>
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
           {highlights.map((item, idx) => (
-            <AchievementCard key={idx} {...item} onViewImage={handleViewAchievement} />
+            <div
+              key={idx}
+              className={`transition-all duration-700 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+              style={{ transitionDelay: `${idx * 150}ms` }}
+            >
+              <AchievementCard {...item} onViewImage={handleViewAchievement} />
+            </div>
           ))}
         </div>
       </div>

@@ -108,90 +108,76 @@ const ScrollBackground = ({ isTerminalOpen }) => {
         gridRef.current.style.transform = `translateY(-${progress * 200}px)`;
       }
 
-      // Calculate current robot pixel center and animate body parts
-      const offset = isMobile ? 48 : 64; // half width of robot
-      const robotX = ((15 + Math.sin(progress * Math.PI) * 60) / 100 * vw) + offset;
-      const robotY = ((15 + progress * 75) / 100 * vh) + offset;
+      // Skip robot animation & physics calculations on mobile screens
+      if (!isMobile) {
+        // Calculate current robot pixel center and animate body parts
+        const offset = 64; // half width of robot
+        const robotX = ((15 + Math.sin(progress * Math.PI) * 60) / 100 * vw) + offset;
+        const robotY = ((15 + progress * 75) / 100 * vh) + offset;
 
-      if (!isTerminalOpenRef.current && droneRootRef.current) {
-         const posX = 15 + Math.sin(progress * Math.PI) * 60; 
-         const posY = 15 + progress * 75; // 15vh to 90vh
-         const tilt = Math.cos(progress * Math.PI * 2) * 15;
-         
-         const armSwing = Math.sin(progress * 80) * 25;
-         const eyePosX = (Math.sin(progress * Math.PI * 4)) * 2;
-         const nametagY = Math.sin(progress * 150) * 4;
+        if (!isTerminalOpenRef.current && droneRootRef.current) {
+           const posX = 15 + Math.sin(progress * Math.PI) * 60; 
+           const posY = 15 + progress * 75; // 15vh to 90vh
+           const tilt = Math.cos(progress * Math.PI * 2) * 15;
+           
+           const armSwing = Math.sin(progress * 80) * 25;
+           const eyePosX = (Math.sin(progress * Math.PI * 4)) * 2;
+           const nametagY = Math.sin(progress * 150) * 4;
 
-         droneRootRef.current.style.transform = `translate(${posX}vw, ${posY}vh) rotate(${tilt}deg)`;
-         if (droneNametagRef.current) droneNametagRef.current.style.transform = `translate(-50%, ${nametagY}px)`;
-         if (droneLeftArmRef.current) droneLeftArmRef.current.style.transform = `rotate(${-armSwing}deg)`;
-         if (droneRightArmRef.current) droneRightArmRef.current.style.transform = `rotate(${armSwing}deg)`;
-         if (droneEyesRef.current) droneEyesRef.current.style.transform = `translateX(${eyePosX}px)`;
-      } else if (isTerminalOpenRef.current && droneRootRef.current) {
-         droneRootRef.current.style.transform = `translate(calc(100vw - clamp(160px, 25vw, 260px)), calc(100vh - 540px)) rotate(${Math.sin(Date.now() / 500) * 5}deg)`;
-         if (droneLeftArmRef.current) droneLeftArmRef.current.style.transform = `rotate(0deg)`;
-         if (droneRightArmRef.current) droneRightArmRef.current.style.transform = `rotate(0deg)`;
-      }
+           droneRootRef.current.style.transform = `translate(${posX}vw, ${posY}vh) rotate(${tilt}deg)`;
+           if (droneNametagRef.current) droneNametagRef.current.style.transform = `translate(-50%, ${nametagY}px)`;
+           if (droneLeftArmRef.current) droneLeftArmRef.current.style.transform = `rotate(${-armSwing}deg)`;
+           if (droneRightArmRef.current) droneRightArmRef.current.style.transform = `rotate(${armSwing}deg)`;
+           if (droneEyesRef.current) droneEyesRef.current.style.transform = `translateX(${eyePosX}px)`;
+        } else if (isTerminalOpenRef.current && droneRootRef.current) {
+           droneRootRef.current.style.transform = `translate(calc(100vw - clamp(160px, 25vw, 260px)), calc(100vh - 540px)) rotate(${Math.sin(Date.now() / 500) * 5}deg)`;
+           if (droneLeftArmRef.current) droneLeftArmRef.current.style.transform = `rotate(0deg)`;
+           if (droneRightArmRef.current) droneRightArmRef.current.style.transform = `rotate(0deg)`;
+        }
 
-      // --- CANVAS PHYSICS & RENDERING ---
-      const dx = robotX - lastRobotPos.current.x;
-      const dy = robotY - lastRobotPos.current.y;
-      const speed = Math.sqrt(dx * dx + dy * dy);
+        // --- CANVAS PHYSICS & RENDERING ---
+        const dx = robotX - lastRobotPos.current.x;
+        const dy = robotY - lastRobotPos.current.y;
+        const speed = Math.sqrt(dx * dx + dy * dy);
 
-      if (!isTerminalOpenRef.current && lastRobotPos.current.x !== 0 && speed > 0.5) {
-         pathHistory.current.push({ x: robotX, y: robotY, life: 1 });
-      }
+        if (!isTerminalOpenRef.current && lastRobotPos.current.x !== 0 && speed > 0.5) {
+           pathHistory.current.push({ x: robotX, y: robotY, life: 1 });
+        }
 
-      for (let i = 0; i < pathHistory.current.length; i++) {
-         pathHistory.current[i].life -= 0.02;
-      }
-      pathHistory.current = pathHistory.current.filter(p => p.life > 0);
+        for (let i = 0; i < pathHistory.current.length; i++) {
+           pathHistory.current[i].life -= 0.02;
+        }
+        pathHistory.current = pathHistory.current.filter(p => p.life > 0);
 
-      if (!isTerminalOpenRef.current && lastRobotPos.current.x !== 0 && speed > 0.5) {
-         const spawnCount = Math.max(1, Math.min(8, Math.floor(speed / 4)));
-         for (let j = 0; j < spawnCount; j++) {
-            const spawnX = lastRobotPos.current.x + dx * (j / spawnCount);
-            const spawnY = lastRobotPos.current.y + dy * (j / spawnCount);
-            const vx = (Math.random() - 0.5) * 1.5 - (dx * 0.03);
-            const vy = (Math.random() - 0.5) * 1.5 - (dy * 0.03);
-            particlesRef.current.push({
-               x: spawnX, y: spawnY, vx, vy,
-               size: Math.random() * 2 + 1,
-               life: 1,
-               decay: Math.random() * 0.03 + 0.015,
-               color: Math.random() > 0.65 ? '255, 255, 255' : '0, 242, 254'
-            });
-         }
-      }
-      lastRobotPos.current = { x: robotX, y: robotY };
+        if (!isTerminalOpenRef.current && lastRobotPos.current.x !== 0 && speed > 0.5) {
+           const spawnCount = Math.max(1, Math.min(8, Math.floor(speed / 4)));
+           for (let j = 0; j < spawnCount; j++) {
+              const spawnX = lastRobotPos.current.x + dx * (j / spawnCount);
+              const spawnY = lastRobotPos.current.y + dy * (j / spawnCount);
+              const vx = (Math.random() - 0.5) * 1.5 - (dx * 0.03);
+              const vy = (Math.random() - 0.5) * 1.5 - (dy * 0.03);
+              particlesRef.current.push({
+                 x: spawnX, y: spawnY, vx, vy,
+                 size: Math.random() * 2 + 1,
+                 life: 1,
+                 decay: Math.random() * 0.03 + 0.015,
+                 color: Math.random() > 0.65 ? '255, 255, 255' : '0, 242, 254'
+              });
+           }
+        }
+        lastRobotPos.current = { x: robotX, y: robotY };
 
-      // Render the glowing light ribbon
-      if (pathHistory.current.length > 2) {
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        for (let i = 1; i < pathHistory.current.length; i++) {
-          const p = pathHistory.current[i];
-          const prev = pathHistory.current[i - 1];
-          const opacity = Math.max(0, p.life);
-          const midX = (prev.x + p.x) / 2;
-          const midY = (prev.y + p.y) / 2;
-          
-          if (isMobile) {
-            ctx.shadowBlur = 0;
-            ctx.beginPath();
-            ctx.moveTo(prev.x, prev.y);
-            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
-            ctx.strokeStyle = `rgba(0, 242, 254, ${opacity})`;
-            ctx.lineWidth = 6 * opacity;
-            ctx.stroke();
+        // Render the glowing light ribbon
+        if (pathHistory.current.length > 2) {
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let i = 1; i < pathHistory.current.length; i++) {
+            const p = pathHistory.current[i];
+            const prev = pathHistory.current[i - 1];
+            const opacity = Math.max(0, p.life);
+            const midX = (prev.x + p.x) / 2;
+            const midY = (prev.y + p.y) / 2;
             
-            ctx.beginPath();
-            ctx.moveTo(prev.x, prev.y);
-            ctx.quadraticCurveTo(midX, midY, p.x, p.y);
-            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
-            ctx.lineWidth = 2 * opacity;
-            ctx.stroke();
-          } else {
             ctx.beginPath();
             ctx.moveTo(prev.x, prev.y);
             ctx.quadraticCurveTo(midX, midY, p.x, p.y);
@@ -220,23 +206,24 @@ const ScrollBackground = ({ isTerminalOpen }) => {
             ctx.stroke();
           }
         }
-      }
 
-      // Update and draw dust particles
-      for (let i = particlesRef.current.length - 1; i >= 0; i--) {
-        const p = particlesRef.current[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= p.decay;
-        if (p.life <= 0) {
-          particlesRef.current.splice(i, 1);
-          continue;
+        // Update and draw dust particles
+        for (let i = particlesRef.current.length - 1; i >= 0; i--) {
+          const p = particlesRef.current[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.life -= p.decay;
+          if (p.life <= 0) {
+            particlesRef.current.splice(i, 1);
+            continue;
+          }
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${p.color}, ${p.life})`;
+          ctx.shadowBlur = p.size * 3; 
+          ctx.shadowColor = `rgba(${p.color}, ${p.life})`;
+          ctx.fill();
         }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.color}, ${p.life})`;
-        if (isMobile) { ctx.shadowBlur = 0; } else { ctx.shadowBlur = p.size * 3; ctx.shadowColor = `rgba(${p.color}, ${p.life})`; }
-        ctx.fill();
       }
       requestRef.current = requestAnimationFrame(render);
     };
@@ -248,7 +235,7 @@ const ScrollBackground = ({ isTerminalOpen }) => {
     <div className="fixed inset-0 z-[-1] overflow-hidden bg-background pointer-events-none">
       <canvas 
         ref={canvasRef} 
-        className="absolute inset-0 z-0 pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none hidden md:block"
       />
       
       <div 
@@ -281,7 +268,7 @@ const ScrollBackground = ({ isTerminalOpen }) => {
       {/* Inline Robot Drone (for manual DOM manipulation) */}
       <div 
         ref={droneRootRef}
-        className={`absolute w-24 h-24 md:w-32 md:h-32 z-10 ease-out will-change-transform drop-shadow-[0_0_15px_rgba(0,242,254,0.4)] ${isTerminalOpen ? 'transition-all duration-700' : ''}`}
+        className={`hidden md:block absolute w-24 h-24 md:w-32 md:h-32 z-10 ease-out will-change-transform drop-shadow-[0_0_15px_rgba(0,242,254,0.4)] ${isTerminalOpen ? 'transition-all duration-700' : ''}`}
         style={{ left: 0, top: 0 }}
       >
         <div 

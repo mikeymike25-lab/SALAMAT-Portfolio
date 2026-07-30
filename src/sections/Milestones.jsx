@@ -16,6 +16,8 @@ const MilestoneImage = ({ src, alt }) => {
       <img 
         src={src} 
         alt={alt} 
+        loading="lazy"
+        decoding="async"
         className="w-full h-full object-contain" 
         onError={() => setError(true)}
       />

@@ -25,6 +25,8 @@ const CertificateCard = ({ title, issuer, date, type, link, imageSrc, descriptio
             <img 
               src={imageSrc} 
               alt={title} 
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300"
               onError={() => setImageError(true)}
             />
