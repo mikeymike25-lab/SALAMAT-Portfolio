@@ -32,8 +32,9 @@ Here is Mike's official profile details:
 
 - Key Projects:
   1. Csec: Anti-phishing app with a 4-tier architecture, Gemini AI chatbot, and AI threat verdicts.
-  2. DevDash: A 2D Python programming adventure game where players battle bosses by answering coding questions.
-  3. M&M Gallery: A secure photo gallery, messaging chat client, and virtual letter vault.
+  2. SylphySched: An intelligent academic study planner and timetable manager featuring automated schedule text parsing, interactive timeline tracking, course-bound note vaults, Spotify playback controls, and an integrated Gemini AI study assistant (Live demo: https://sylphysched.vercel.app/).
+  3. DevDash: A 2D Python programming adventure game where players battle bosses by answering coding questions.
+  4. M&M Gallery: A secure photo gallery, messaging chat client, and virtual letter vault.
 
 - Certifications:
   * AWS AI Practitioner Challenge (Jun 2026)

@@ -16,6 +16,15 @@ const Projects = () => {
       imagePlaceholder: "Csec App"
     },
     {
+      title: "SylphySched",
+      description: "An intelligent academic study planner featuring automated schedule parsing, timeline tracking, course note vaults, Spotify playback controls, and an integrated Gemini AI study assistant.",
+      tags: ["React", "Tailwind CSS", "Firebase", "Gemini AI", "Spotify API"],
+      repoLink: "https://github.com/mikeymike25-lab",
+      demoLink: "https://sylphysched.vercel.app/",
+      imageSrc: "/assets/SylphySched.png",
+      imagePlaceholder: "SylphySched App"
+    },
+    {
       title: "DevDash",
       description: "A 2D Python learning adventure game. Players collide with mobs to solve programming questions, defeat bosses, and master Python basics.",
       tags: ["Python", "2D Game", "Game Dev", "Educational"],
@@ -43,7 +52,7 @@ const Projects = () => {
           <div className="h-px bg-gray-800 flex-grow ml-4 max-w-xs"></div>
         </h2>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 md:gap-8">
           {projectData.map((project, idx) => (
             <div
               key={idx}

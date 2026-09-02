@@ -34,6 +34,7 @@ const indexableContent = [
   { section: 'Skills', text: 'Database Systems: Supabase, Firebase, MySQL.' },
   { section: 'Skills', text: 'Tools & Security: Git/GitHub, Web Exploitation, Digital Forensics, Docker, Claude AI, Agentic AI Workflows, Gemini CLI / Antigravity, Linux (Kali).' },
   { section: 'Projects', text: 'Csec - An anti-phishing app with 4-tier architecture, Gemini AI chatbot integrations, and AI verdicts.' },
+  { section: 'Projects', text: 'SylphySched - An intelligent academic study planner and timetable manager with automated schedule parsing, course notes vault, Spotify playback controls, and an integrated Gemini AI study assistant.' },
   { section: 'Projects', text: 'DevDash - A 2D Python learning adventure game where players collide with mobs to answer programming questions and defeat bosses.' },
   { section: 'Projects', text: 'M&M Gallery - A private web app for photo storage, virtual letters, and an integrated messenger chat interface.' },
   { section: 'Certifications', text: 'AWS AI Practitioner Challenge, Udacity formal certificate (Jun 2026).' },
@@ -323,8 +324,9 @@ function App() {
     } else if (commandLower === 'projects') {
       newHistory.push(
         { type: 'output', text: '1. Csec - Anti-Phishing 4-Tier & Gemini AI App' },
-        { type: 'output', text: '2. DevDash - 2D Python Educational Adventure Game' },
-        { type: 'output', text: '3. M&M Gallery - Private Photobooth Storage & Chat App' },
+        { type: 'output', text: '2. SylphySched - AI Academic Planner & Timetable Study Vault' },
+        { type: 'output', text: '3. DevDash - 2D Python Educational Adventure Game' },
+        { type: 'output', text: '4. M&M Gallery - Private Photobooth Storage & Chat App' },
         { type: 'output', text: 'Status: Changing directory to /projects...' }
       );
       triggerNavigationScroll('projects', '~/projects');
