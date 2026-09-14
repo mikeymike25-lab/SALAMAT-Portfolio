@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Hero from './sections/Hero';
@@ -11,6 +12,7 @@ import Achievements from './sections/Achievements';
 import Contact from './sections/Contact';
 import FloatingTerminal from './components/FloatingTerminal';
 import ScrollBackground from './components/ScrollBackground';
+import MethodologyPage from './pages/MethodologyPage';
 import { trackVisit, supabase } from './supabaseClient';
 import { askAI } from './aiService';
 
@@ -48,6 +50,8 @@ const indexableContent = [
 ];
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [history, setHistory] = useState(INITIAL_HISTORY);
   const [showFloatingIcon, setShowFloatingIcon] = useState(false);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
@@ -248,6 +252,7 @@ function App() {
             'about': '~/about',
             'skills': '~/skills',
             'projects': '~/projects',
+            'methodology': '~/methodology',
             'certifications': '~/certifications',
             'milestones': '~/milestones',
             'achievements': '~/achievements',
@@ -276,6 +281,7 @@ function App() {
       if (cdTarget === 'about') commandLower = 'about';
       else if (cdTarget === 'skills') commandLower = 'skills';
       else if (cdTarget === 'projects') commandLower = 'projects';
+      else if (cdTarget === 'methodology' || cdTarget === 'process') commandLower = 'methodology';
       else if (cdTarget === 'certifications' || cdTarget === 'events') commandLower = 'certifications';
       else if (cdTarget === 'timeline' || cdTarget === 'milestones') commandLower = 'milestones';
       else if (cdTarget === 'achievements') commandLower = 'achievements';
@@ -291,6 +297,7 @@ function App() {
         { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd about</span>{"        - Change directory and scroll to About Me"}</span> },
         { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd skills</span>{"       - Change directory and scroll to Skills"}</span> },
         { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd projects</span>{"     - Change directory and scroll to Projects"}</span> },
+        { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd methodology</span>{"  - Change directory and scroll to Methodology"}</span> },
         { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd milestones</span>{"   - Change directory and scroll to Milestones"}</span> },
         { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd achievements</span>{" - Change directory and scroll to Achievements"}</span> },
         { type: 'output', text: <span>{"  "}<span className="text-accent font-bold">cd contact</span>{"      - Change directory and scroll to Contact Form"}</span> },
@@ -306,7 +313,7 @@ function App() {
       );
     } else if (commandLower === 'about') {
       newHistory.push(
-        { type: 'output', text: 'Mike Angelo Salamat' },
+        { type: 'output', text: 'Mike Angelo OS v2.0.0' },
         { type: 'output', text: 'Role: Full-Stack Developer & Cybersecurity Enthusiast' },
         { type: 'output', text: 'Specialties: Web Exploitation & Forensics' },
         { type: 'output', text: 'Status: Changing directory to /about...' }
@@ -330,6 +337,18 @@ function App() {
         { type: 'output', text: 'Status: Changing directory to /projects...' }
       );
       triggerNavigationScroll('projects', '~/projects');
+    } else if (commandLower === 'methodology') {
+      newHistory.push(
+        { type: 'output', text: 'Process Methodology:' },
+        { type: 'output', text: '  [How I Build]  SDLC: Architecture → Components → CI/CD' },
+        { type: 'output', text: '  [How I Pen Test]  PTES/OWASP: Recon → Exploit → Remediate' },
+        { type: 'output', text: 'Status: Navigating to /methodology screen...' }
+      );
+      // Close terminal before navigating
+      setIsTerminalOpen(false);
+      setTimeout(() => {
+        navigate('/methodology');
+      }, 500);
     } else if (commandLower === 'certifications' || commandLower === 'events') {
       newHistory.push(
         { type: 'output', text: 'Official Certifications:' },
@@ -521,9 +540,11 @@ function App() {
   const handleAskSylphyClick = (e) => {
     e.preventDefault();
 
-    // 1. Determine if we are scrolled down
+    // 1. Determine if we are scrolled down or on another page
     const atTop = window.scrollY <= 300;
-    if (atTop) {
+    const isMethodology = location.pathname === '/methodology';
+    
+    if (atTop && !isMethodology) {
       // Scroll to hero terminal smoothly
       document.getElementById('hero-terminal')?.scrollIntoView({ behavior: 'smooth' });
     } else {
@@ -544,43 +565,53 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent text-gray-200 relative">
-      <ScrollBackground isTerminalOpen={isTerminalOpen} />
-      <Navbar onAskSylphy={handleAskSylphyClick} />
+    <>
+    <Routes>
+      {/* ── Home route ── */}
+      <Route path="/" element={
+        <div className="min-h-screen bg-transparent text-gray-200 relative">
+          <ScrollBackground isTerminalOpen={isTerminalOpen} />
+          <Navbar onAskSylphy={handleAskSylphyClick} />
 
-      <main>
-        <Hero
-          history={history}
-          executeCommand={executeCommand}
-          hideTerminal={hideHeroTerminal}
-          visitorCount={visitorCount}
-          promptPrefix={promptPrefix}
-          placeholder={promptPlaceholder}
-          currentDir={currentDir}
-        />
-        <About />
-        <Skills />
-        <Projects />
-        <Certifications />
-        <Milestones />
-        <Achievements />
-        <Contact />
-      </main>
+          <main>
+            <Hero
+              history={history}
+              executeCommand={executeCommand}
+              hideTerminal={hideHeroTerminal}
+              visitorCount={visitorCount}
+              promptPrefix={promptPrefix}
+              placeholder={promptPlaceholder}
+              currentDir={currentDir}
+            />
+            <About />
+            <Skills />
+            <Projects />
+            <Certifications />
+            <Milestones />
+            <Achievements />
+            <Contact />
+          </main>
 
-      <Footer visitorCount={visitorCount} />
+          <Footer visitorCount={visitorCount} />
+        </div>
+      } />
 
-      {/* Floating terminal portal synced with top shell */}
-      <FloatingTerminal
-        history={history}
-        executeCommand={executeCommand}
-        showIcon={showFloatingIcon}
-        isOpen={isTerminalOpen}
-        setIsOpen={setIsTerminalOpen}
-        promptPrefix={promptPrefix}
-        placeholder={promptPlaceholder}
-        currentDir={currentDir}
-      />
-    </div>
+      {/* ── Methodology page ── */}
+      <Route path="/methodology" element={<MethodologyPage onAskSylphy={handleAskSylphyClick} />} />
+    </Routes>
+    
+    {/* Global Floating terminal portal synced with top shell */}
+    <FloatingTerminal
+      history={history}
+      executeCommand={executeCommand}
+      showIcon={showFloatingIcon}
+      isOpen={isTerminalOpen}
+      setIsOpen={setIsTerminalOpen}
+      promptPrefix={promptPrefix}
+      placeholder={promptPlaceholder}
+      currentDir={currentDir}
+    />
+    </>
   );
 }
 

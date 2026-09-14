@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 
 const Navbar = ({ onAskSylphy }) => {
@@ -6,6 +7,9 @@ const Navbar = ({ onAskSylphy }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const location = useLocation();
+  
+  const isMethodology = location.pathname === '/methodology';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,23 +34,28 @@ const Navbar = ({ onAskSylphy }) => {
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'backdrop-blur-md bg-background/80 border-b border-gray-800 shadow-lg' : 'bg-transparent'}`}>
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          <div className="flex-shrink-0">
-            <a href="#" className="font-mono text-xl font-bold text-white tracking-tighter">
+          {/* Logo / Brand */}
+          <Link to="/" className="flex items-center space-x-2 shrink-0 group">
+            <span className="text-xl font-bold font-mono tracking-tighter text-white group-hover:text-accent transition-colors duration-300">
               <span className="text-accent">&lt;</span>sylphy-dev<span className="text-accent">/&gt;</span>
-            </a>
-          </div>
-          
-          <div className="hidden md:block">
-            <nav className="flex items-center space-x-8">
-              <a href="#about" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
+            </span>
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center space-x-8">
+            <nav className="flex items-center space-x-6">
+              <a href="/#about" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
                 About
               </a>
-              <a href="#skills" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
+              <a href="/#skills" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
                 Skills
               </a>
-              <a href="#projects" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
+              <a href="/#projects" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
                 Projects
               </a>
+              <Link to="/methodology" className="text-sm font-mono text-gray-300 hover:text-accent transition-colors">
+                Methodology
+              </Link>
               
               {/* Experience Dropdown */}
               <div 
@@ -57,7 +66,7 @@ const Navbar = ({ onAskSylphy }) => {
               >
                 <button 
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-1.5 text-sm font-mono text-gray-300 hover:text-accent transition-colors focus:outline-none cursor-pointer py-2"
+                  className="flex items-center gap-1.5 text-sm font-mono text-gray-300 hover:text-accent transition-colors focus:outline-none cursor-pointer"
                 >
                   Experience
                   <ChevronDown size={14} className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180 text-accent' : ''}`} />
@@ -115,16 +124,19 @@ const Navbar = ({ onAskSylphy }) => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 w-full bg-background border-b border-gray-800 shadow-xl">
-          <div className="px-6 py-6 space-y-5 flex flex-col">
-            <a href="#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
+          <nav className="px-6 py-6 flex flex-col space-y-4 font-mono">
+            <a href="/#about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
               About
             </a>
-            <a href="#skills" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
+            <a href="/#skills" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
               Skills
             </a>
-            <a href="#projects" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
+            <a href="/#projects" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
               Projects
             </a>
+            <Link to="/methodology" onClick={() => setMobileMenuOpen(false)} className="text-sm font-mono text-gray-300 hover:text-accent block">
+              Methodology
+            </Link>
             
             {/* Mobile Nested Group */}
             <div className="space-y-3">
@@ -157,7 +169,7 @@ const Navbar = ({ onAskSylphy }) => {
             >
               Ask Sylphy
             </button>
-          </div>
+          </nav>
         </div>
       )}
     </header>

@@ -35,6 +35,7 @@ Here is Mike's official profile details:
   2. SylphySched: An intelligent academic study planner and timetable manager featuring automated schedule text parsing, interactive timeline tracking, course-bound note vaults, Spotify playback controls, and an integrated Gemini AI study assistant (Live demo: https://sylphysched.vercel.app/).
   3. DevDash: A 2D Python programming adventure game where players battle bosses by answering coding questions.
   4. M&M Gallery: A secure photo gallery, messaging chat client, and virtual letter vault.
+  5. PWMap: An inclusive navigation and accessibility mapping platform designed to help Persons with Disabilities (PWDs) travel with confidence and independence. Features interactive maps highlighting wheelchair ramps, elevators, accessible transit stops, and bus/train lines (including LRT-2 and QC Bus routes), real-time voice proximity alerts for visually impaired commuters, crowd-sourced accessibility reporting, and a supportive community forum.
 
 - Certifications:
   * AWS AI Practitioner Challenge (Jun 2026)
@@ -42,6 +43,7 @@ Here is Mike's official profile details:
   * AWS Student re:Invent Event (Dec 2025)
 
 - Achievements:
+  * Squad 3 Finalist - StartUp QC Student Competition (Sep 2026): Selected as a Squad 3 Finalist in StartUp QC with PWMap—an inclusive navigation and accessibility mapping platform helping Persons with Disabilities (PWDs) travel with confidence and independence. Representing Technological Institute of the Philippines (T.I.P. Quezon City).
   * Champion / 1st Place - JISSA CTF: Rise of the Edgerunners (2025): Competed in web exploitation, forensics, and cryptanalysis categories (do not claim to solve advanced challenges).
   * 16th Place - Hack4Gov: Competed as a Web Exploitation specialist in this national cyber threat defense CTF tournament.
   * 102nd Place - Nu1L N1CTF International Cybersecurity Tournament: Secured 102nd place globally against elite international threat hunting and security teams.
@@ -112,7 +114,7 @@ export async function askAI(chatHistory) {
 
     return data.reply || "[Sylphy AI]: Empty response received. Please try rephrasing your question.";
   } catch (err) {
-    console.error('Error calling Vercel API:', err);
+    // silently catch api errors so viewers don't see console stack traces
     return "[Sylphy AI]: Network error contacting serverless function. Please check your internet connection.";
   }
 }

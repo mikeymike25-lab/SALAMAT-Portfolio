@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Trophy, ShieldAlert, Users } from 'lucide-react';
+import { Trophy, ShieldAlert, Users, MapPin } from 'lucide-react';
 import ImageModal from '../components/ImageModal';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
-const AchievementCard = ({ title, subtitle, icon: Icon, description, imageSrc, detailImageSrc, date, issuer, onViewImage }) => {
+const AchievementCard = ({ title, subtitle, icon: Icon, description, modalDescription, imageSrc, detailImageSrc, date, issuer, onViewImage }) => {
   const [imageError, setImageError] = useState(false);
 
   return (
@@ -52,8 +52,9 @@ const AchievementCard = ({ title, subtitle, icon: Icon, description, imageSrc, d
               issuer: issuer || `${title} - ${subtitle}`, 
               date, 
               type: 'achievement', 
-              imageSrc: detailImageSrc || imageSrc, 
-              description 
+              imageSrc,
+              detailImageSrc: detailImageSrc || imageSrc, 
+              description: modalDescription || description 
             })}
             className="text-[10px] md:text-xs font-mono px-2 py-1 md:px-3 md:py-1.5 rounded bg-accent/10 hover:bg-accent/20 text-accent hover:text-white transition-all duration-300"
           >
@@ -76,6 +77,17 @@ const Achievements = () => {
   };
 
   const highlights = [
+    {
+      title: "StartUp QC: PWMap",
+      subtitle: "Squad 3 Finalist",
+      icon: MapPin,
+      description: "Selected as a Squad 3 Finalist in StartUp QC with PWMap—an inclusive navigation and accessibility mapping platform designed to help Persons with Disabilities (PWDs) travel with confidence and independence.",
+      modalDescription: "PWMap is an inclusive navigation and accessibility mapping platform designed to help Persons with Disabilities (PWDs) travel with confidence and independence.\n\nThe app features interactive maps highlighting wheelchair ramps, elevators, accessible transit stops, and bus/train lines (including LRT-2 and QC Bus routes). With real-time voice proximity alerts for visually impaired commuters, crowd-sourced accessibility reporting, and a supportive community forum, PWMap bridges mobility gaps and promotes accessible cities for everyone.",
+      imageSrc: "/assets/StartUpQC.png",
+      detailImageSrc: "/assets/StartUpQCin.png",
+      issuer: "Quezon City Local Government (StartUp QC)",
+      date: "Sep 2026"
+    },
     {
       title: "JISSA CTF: Rise of the Edgerunners",
       subtitle: "Champion (1st Place)",
@@ -125,7 +137,7 @@ const Achievements = () => {
           <div className="h-px bg-gray-800 flex-grow ml-4 max-w-xs"></div>
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8">
           {highlights.map((item, idx) => (
             <div
               key={idx}

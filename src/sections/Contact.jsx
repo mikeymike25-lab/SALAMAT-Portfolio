@@ -51,7 +51,6 @@ const Contact = () => {
         setStatus('error');
       }
     } catch (error) {
-      console.error("Form submission error:", error);
       setStatus('error');
     }
   };

@@ -81,7 +81,7 @@ async function getDeviceDetails() {
         browserName = 'Brave';
       }
     } catch (e) {
-      console.warn('Error checking Brave browser:', e);
+      // silently ignore Brave API check failure
     }
   }
 
@@ -168,12 +168,11 @@ export async function trackVisit() {
       u_agent: device.userAgent
     });
     if (error) {
-      console.error('Supabase tracking failed:', error.message);
       return null;
     }
     return data;
   } catch (err) {
-    console.error('Error in trackVisit client connection:', err);
+    // silently fail tracking if supabase pauses or network drops
     return null;
   }
 }

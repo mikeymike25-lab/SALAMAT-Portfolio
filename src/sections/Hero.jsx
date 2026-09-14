@@ -47,18 +47,18 @@ const Hero = ({ history, executeCommand, hideTerminal, visitorCount, promptPrefi
         }
         @keyframes pulse-glow {
           0%, 100% {
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
-            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 0 6px rgba(0, 242, 254, 0.15), 0 0 12px rgba(0, 242, 254, 0.06);
+            border-color: rgba(0, 242, 254, 0.25);
           }
           50% {
-            box-shadow: 0 0 35px rgba(0, 242, 254, 0.45);
-            border-color: rgba(0, 242, 254, 0.7);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.25), 0 0 20px rgba(0, 242, 254, 0.08);
+            border-color: rgba(0, 242, 254, 0.5);
           }
         }
       `}</style>
-      {/* Background glow elements */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-accent/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/5 rounded-full blur-[100px] pointer-events-none"></div>
+      {/* Background glow elements — subtle */}
+      <div className="absolute top-1/4 -left-16 w-64 h-64 bg-accent/5 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 -right-16 w-64 h-64 bg-accent/3 rounded-full blur-[80px] pointer-events-none"></div>
 
       <div className="max-w-[90rem] mx-auto px-6 lg:px-8 w-full grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-[auto_1fr_auto] gap-8 xl:gap-6 2xl:gap-12 items-center">
         

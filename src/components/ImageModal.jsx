@@ -3,14 +3,16 @@ import { X } from 'lucide-react';
 
 const ImageModal = ({ isOpen, cert, onClose }) => {
   const [imageError, setImageError] = useState(false);
-  const { title, issuer, date, type, link, imageSrc, description } = cert || {};
+  const { title, issuer, date, type, link, imageSrc, detailImageSrc, description } = cert || {};
+  const [activeImage, setActiveImage] = useState(null);
 
   // Reset error state when modal opens or active certificate changes
   useEffect(() => {
     if (isOpen) {
       setImageError(false);
+      setActiveImage(detailImageSrc || imageSrc);
     }
-  }, [isOpen, cert]);
+  }, [isOpen, cert, detailImageSrc, imageSrc]);
 
   // Listen for Escape key press to close the modal
   useEffect(() => {
@@ -55,19 +57,47 @@ const ImageModal = ({ isOpen, cert, onClose }) => {
         <div className="p-6 bg-background/50 overflow-y-auto flex-grow flex flex-col md:grid md:grid-cols-12 gap-8 items-center">
           
           {/* Left Column: Image Container (takes 7 columns on desktop) */}
-          <div className="w-full md:col-span-7 flex items-center justify-center bg-gray-950/60 p-4 rounded-xl border border-gray-800/80 min-h-[300px] h-full">
-            {imageSrc && !imageError ? (
-              <img 
-                src={imageSrc} 
-                alt={title || 'Credential preview'} 
-                className="max-h-[50vh] max-w-full object-contain rounded shadow-2xl" 
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="text-center p-8 space-y-4">
-                <div className="inline-flex p-3 rounded-full bg-accent/10 text-accent font-mono font-bold text-xl">MAS</div>
-                <p className="text-gray-400 font-mono text-sm">Credential Document Placeholder</p>
-                <p className="text-xs text-gray-500 max-w-md mx-auto">This represents the high-resolution certificate for {title}. Ready to connect with secure AWS S3, Cloudinary, or PDF routing pipelines in staging.</p>
+          <div className="w-full md:col-span-7 flex flex-col items-center justify-center bg-gray-950/60 p-4 rounded-xl border border-gray-800/80 min-h-[300px] h-full">
+            <div className="flex-grow flex items-center justify-center w-full">
+              {activeImage && !imageError ? (
+                <img 
+                  src={activeImage} 
+                  alt={title || 'Credential preview'} 
+                  className="max-h-[46vh] max-w-full object-contain rounded shadow-2xl" 
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="text-center p-8 space-y-4">
+                  <div className="inline-flex p-3 rounded-full bg-accent/10 text-accent font-mono font-bold text-xl">MAS</div>
+                  <p className="text-gray-400 font-mono text-sm">Credential Document Placeholder</p>
+                  <p className="text-xs text-gray-500 max-w-md mx-auto">This represents the high-resolution certificate for {title}. Ready to connect with secure AWS S3, Cloudinary, or PDF routing pipelines in staging.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Gallery switcher if both detailImageSrc and imageSrc exist and are distinct */}
+            {imageSrc && detailImageSrc && imageSrc !== detailImageSrc && (
+              <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-gray-800/60 w-full">
+                <button
+                  type="button"
+                  onClick={() => { setImageError(false); setActiveImage(imageSrc); }}
+                  className={`relative rounded-lg overflow-hidden border-2 transition-all p-0.5 h-12 w-14 bg-gray-900 ${
+                    activeImage === imageSrc ? 'border-accent shadow-glow-sm scale-105' : 'border-gray-800 opacity-60 hover:opacity-100'
+                  }`}
+                  title="View preview image"
+                >
+                  <img src={imageSrc} alt="Thumbnail 1" className="w-full h-full object-cover rounded" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setImageError(false); setActiveImage(detailImageSrc); }}
+                  className={`relative rounded-lg overflow-hidden border-2 transition-all p-0.5 h-12 w-14 bg-gray-900 ${
+                    activeImage === detailImageSrc ? 'border-accent shadow-glow-sm scale-105' : 'border-gray-800 opacity-60 hover:opacity-100'
+                  }`}
+                  title="View detailed image"
+                >
+                  <img src={detailImageSrc} alt="Thumbnail 2" className="w-full h-full object-cover rounded" />
+                </button>
               </div>
             )}
           </div>
@@ -105,7 +135,7 @@ const ImageModal = ({ isOpen, cert, onClose }) => {
 
               <div className="space-y-2 border-t border-gray-800 pt-4">
                 <h4 className="text-sm font-mono text-gray-500 uppercase tracking-wider">Overview / Focus</h4>
-                <p className="text-gray-400 text-sm leading-relaxed">{description || 'No overview provided.'}</p>
+                <p className="text-gray-400 text-sm leading-relaxed whitespace-pre-line">{description || 'No overview provided.'}</p>
               </div>
             </div>
 
